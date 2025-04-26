@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>تتبع الحافلة</title>
+  <style>
+    body {
+      font-family: Arial;
+      direction: rtl;
+      text-align: center;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      width: 100%;
+      height: 100vh; /* حجم الخريطة 100% من الشاشة */
+    }
+
+    .track-bus {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #17a2b8;
+      color: white;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .track-bus:hover {
+      background-color: #138496;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>تتبع الحافلة</h2>
+
+  <!-- خريطة جوجل لعرض الموقع -->
+  <div id="map"></div>
+
+  <!-- زر لتتبع الحافلة -->
+  <button class="track-bus" onclick="trackBus()">تتبع الحافلة</button>
+
+  <script>
+    let map;
+    let busMarker;
+
+    // تحميل الخريطة وتهيئتها
+    function initMap() {
+      const mapOptions = {
+        center: { lat: 24.7136, lng: 46.6753 }, // موقع الرياض كمثال
+        zoom: 14, // مستوى تكبير الخريطة
+      };
+
+      map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+      // تغيير شكل الدبوس إلى دائرة حمراء تمثل الحافلة
+      busMarker = new google.maps.Marker({
+        position: { lat: 24.7136, lng: 46.6753 }, // موقع الحافلة المبدئي
+        map: map,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE, // شكل الدبوس كدائرة
+          scale: 10, // حجم الرمز
+          fillColor: '#FF0000', // اللون الأحمر
+          fillOpacity: 1, // شفافية اللون
+          strokeColor: '#FFFFFF', // لون الحدود الأبيض
+          strokeWeight: 2, // سمك الحدود
+        }
+      });
+    }
+
+    // دالة لتتبع الحافلة
+    function trackBus() {
+      // يمكنك تحديث الموقع هنا بناءً على الموقع الفعلي للحافلة
+      alert("تتبع الحافلة قيد التنفيذ");
+
+      // تحديث الموقع بشكل عشوائي للمثال (يمكنك ربطه بموقع حقيقي)
+      let newLocation = { lat: 24.7156, lng: 46.6783 };
+
+      // تحديث موقع الحافلة على الخريطة
+      busMarker.setPosition(newLocation);
+      map.setCenter(newLocation); // إعادة ضبط مركز الخريطة إلى الموقع الجديد
+    }
+
+    // تحميل الخريطة عند تحميل الصفحة
+    window.onload = initMap;
+  </script>
+
+  <!-- تأكد من أنك تستخدم مفتاح Google API الصحيح هنا -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-yD3xx8VZhACAof0ps9bWYa69sS_hGJU&callback=initMap">
+  </script>
+
+</body>
+</html>

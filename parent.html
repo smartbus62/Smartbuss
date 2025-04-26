@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل الطالب</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    label,
+    input,
+    select {
+      display: block;
+      margin: 20px auto;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>تسجيل الطالب</h2>
+
+  <label>اسم الطالب</label>
+  <input type="text" id="studentName" placeholder="أدخل اسم الطالب">
+
+  <label>تتبع الحافلة</label>
+  <input type="checkbox" id="busTracking"> تفعيل تتبع الحافلة
+
+  <h3>جدول الحضور</h3>
+  <label>الأحد:</label>
+  <select id="sun">
+    <option value="attend">سيحضر كل اليوم</option>
+    <option value="return">عودة فقط</option>
+    <option value="go">ذهاب فقط</option>
+  </select>
+
+  <!-- كرر نفس الكود لبقية الأيام (الإثنين، الثلاثاء، ...): -->
+  <label>الإثنين:</label>
+  <select id="mon">
+    <option value="attend">سيحضر كل اليوم</option>
+    <option value="return">عودة فقط</option>
+    <option value="go">ذهاب فقط</option>
+  </select>
+
+  <!-- أضف باقي الأيام هنا -->
+
+  <button onclick="saveStudent()">حفظ</button>
+
+  <script>
+    function saveStudent() {
+      const studentName = document.getElementById("studentName").value;
+      const busTracking = document.getElementById("busTracking").checked;
+      const attendance = {
+        sun: document.getElementById("sun").value,
+        mon: document.getElementById("mon").value,
+        // أضف بقية الأيام هنا
+      };
+
+      if (studentName) {
+        const student = {name: studentName, busTracking, attendance};
+
+        // حفظ الطالب في localStorage
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        students.push(student);
+        localStorage.setItem('students', JSON.stringify(students));
+
+        alert("تم حفظ الطالب!");
+      } else {
+        alert("يرجى إدخال اسم الطالب");
+      }
+    }
+  </script>
+</body>
+
+</html>

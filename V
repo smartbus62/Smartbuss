@@ -1,0 +1,14 @@
+import sqlite3
+
+# الاتصال بقاعدة بياناتك
+conn = sqlite3.connect('narez.db')
+cursor = conn.cursor()
+
+# مثال: جلب كل المستخدمين
+cursor.execute('SELECT * FROM users')
+rows = cursor.fetchall()
+
+for row in rows:
+    print(row)
+
+conn.close()

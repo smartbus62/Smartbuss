@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>دخول المشرف</title>
+  <style>
+    body {
+      font-family: Arial;
+      direction: rtl;
+      text-align: center;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      width: 100%;
+      height: 60vh;
+    }
+
+    .student-list {
+      margin-top: 30px;
+    }
+
+    .student {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      margin-top: 10px;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .purple-btn {
+      background-color: #6f42c1;
+      color: white;
+    }
+
+    .purple-btn:hover {
+      background-color: #5a36a3;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>إدارة حضور الطلاب</h2>
+
+  <!-- خريطة جوجل لعرض المواقع -->
+  <div id="map"></div>
+
+  <div class="student-list">
+    <h3>الطلاب المسجلين:</h3>
+    <ul id="student-list">
+      <!-- سيتم عرض الطلاب هنا -->
+    </ul>
+  </div>
+
+  <script>
+    let map;
+    let studentMarkers = [];
+    const students = JSON.parse(localStorage.getItem("students")) || [];
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 24.7136, lng: 46.6753 },
+        zoom: 14,
+      });
+
+      students.forEach((student) => {
+        const marker = new google.maps.Marker({
+          position: student.location,
+          map: map,
+          title: student.name,
+          icon: getStudentIcon(student.attendance),
+        });
+        studentMarkers.push(marker);
+      });
+    }
+
+    function getStudentIcon(attendance) {
+      if (attendance.sun === "present" || attendance.mon === "present") {
+        return {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: '#28a745', 
+          fillOpacity: 1,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 2,
+        };
+      } else if (attendance.sun === "onlyMorning" || attendance.mon === "onlyMorning") {
+        return {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: '#007bff', 
+          fillOpacity: 1,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 2,
+        };
+      } else if (attendance.sun === "onlyAfternoon" || attendance.mon === "onlyAfternoon") {
+        return {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: '#ffc107', 
+          fillOpacity: 1,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 2,
+        };
+      } else {
+        return {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: '#dc3545', 
+          fillOpacity: 1,
+          strokeColor: '#FFFFFF',
+          strokeWeight: 2,
+        };
+      }
+    }
+
+    function displayStudents() {
+      const studentList = document.getElementById("student-list");
+      studentList.innerHTML = "";
+      students.forEach((student, index) => {
+        const studentItem = document.createElement("li");
+        studentItem.classList.add("student");
+
+        const studentName = document.createElement("span");
+        studentName.textContent = student.name;
+        studentItem.appendChild(studentName);
+
+        const status = document.createElement("span");
+        status.textContent = getStudentStatus(student);
+        studentItem.appendChild(status);
+
+        const ascendedButton = document.createElement("button");
+        ascendedButton.classList.add("purple-btn");
+        ascendedButton.textContent = "تم الصعود";
+        ascendedButton.onclick = () => markAsAscended(student, index);
+        studentItem.appendChild(ascendedButton);
+
+        studentList.appendChild(studentItem);
+      });
+    }
+
+    function getStudentStatus(student) {
+      if (student.attendance.sun === "present" || student.attendance.mon === "present") {
+        return "سيحضر";
+      } else if (student.attendance.sun === "onlyMorning" || student.attendance.mon === "onlyMorning") {
+        return "ذهاب فقط";
+      } else if (student.attendance.sun === "onlyAfternoon" || student.attendance.mon === "onlyAfternoon") {
+        return "عودة فقط";
+      } else {
+        return "لن يحضر";
+      }
+    }
+
+    function markAsAscended(student, index) {
+      const marker = studentMarkers[index];
+      marker.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: '#6f42c1',
+        fillOpacity: 1,
+        strokeColor: '#FFFFFF',
+        strokeWeight: 2,
+      });
+
+      students[index].ascended = true;
+      localStorage.setItem("students", JSON.stringify(students));
+
+      alert("تم تسجيل صعود الطالب بنجاح!");
+    }
+
+    window.onload = function() {
+      initMap();
+      displayStudents();
+    }
+  </script>
+
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-yD3xx8VZhACAof0ps9bWYa69sS_hGJU&callback=initMap">
+  </script>
+
+</body>
+</html>

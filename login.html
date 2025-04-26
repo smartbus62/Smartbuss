@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>تسجيل الدخول</title>
+  <style>
+    body {
+      font-family: Arial;
+      direction: rtl;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      margin-top: 20px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    input, button {
+      margin: 10px;
+      padding: 15px;
+      font-size: 16px;
+      border-radius: 5px;
+      width: 100%;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    #map {
+      width: 100%;
+      height: 300px;
+      margin-top: 10px;
+    }
+
+    .student-list {
+      margin-top: 30px;
+    }
+
+    .student {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .delete-btn, .login-btn {
+      width: 60px;
+      height: 40px;
+      border-radius: 5px;
+      font-size: 16px;
+      text-align: center;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+    }
+
+    .delete-btn {
+      background-color: #dc3545;
+    }
+
+    .delete-btn:hover {
+      background-color: #c82333;
+    }
+
+    .login-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>تسجيل الدخول</h2>
+    <input type="text" id="student-name" placeholder="اسم الطالب" />
+
+    <!-- الخريطة -->
+    <div id="map"></div>
+
+    <!-- زر حفظ الموقع -->
+    <button onclick="saveStudentLocation()">حفظ الموقع</button>
+
+    <!-- زر إضافة الطالب -->
+    <button onclick="addStudent()">إضافة الطالب</button>
+  </div>
+
+  <!-- قائمة الطلاب -->
+  <div class="student-list">
+    <h3>الطلاب المسجلين:</h3>
+    <ul id="student-list"></ul>
+  </div>
+
+  <script>
+    let selectedLocation = { lat: 26.3260, lng: 43.9750 }; // بريدة
+    let marker;
+    const students = JSON.parse(localStorage.getItem("students")) || [];
+
+    function initMap() {
+      const map = new google.maps.Map(document.getElementById("map"), {
+        center: selectedLocation,
+        zoom: 13,
+      });
+
+      marker = new google.maps.Marker({
+        position: selectedLocation,
+        map: map,
+        draggable: true
+      });
+
+      map.addListener("click", function (e) {
+        selectedLocation = {
+          lat: e.latLng.lat(),
+          lng: e.latLng.lng()
+        };
+        marker.setPosition(selectedLocation);
+      });
+    }
+
+    function saveStudentLocation() {
+      localStorage.setItem("selectedLocation", JSON.stringify(selectedLocation));
+      alert("تم حفظ الموقع بنجاح!");
+    }
+
+    function addStudent() {
+      const name = document.getElementById("student-name").value;
+      const savedLocation = JSON.parse(localStorage.getItem("selectedLocation"));
+
+      if (name && savedLocation) {
+        const student = {
+          name: name,
+          location: savedLocation,
+          attendance: {}
+        };
+        students.push(student);
+        localStorage.setItem("students", JSON.stringify(students));
+        displayStudents();
+        document.getElementById("student-name").value = "";
+        alert("تمت إضافة الطالب مع موقعه!");
+      } else {
+        alert("يرجى إدخال الاسم وتحديد الموقع ثم حفظه.");
+      }
+    }
+
+    function displayStudents() {
+      const studentList = document.getElementById("student-list");
+      studentList.innerHTML = "";
+      const students = JSON.parse(localStorage.getItem("students")) || [];
+
+      students.forEach((student, index) => {
+        const studentItem = document.createElement("li");
+        studentItem.classList.add("student");
+
+        const studentName = document.createElement("span");
+        studentName.textContent = student.name;
+        studentItem.appendChild(studentName);
+
+        const loginBtn = document.createElement("button");
+        loginBtn.classList.add("login-btn");
+        loginBtn.textContent = "دخول";
+        loginBtn.onclick = () => {
+          localStorage.setItem("currentStudent", student.name);
+          window.location.href = "attendance.html";
+        };
+        studentItem.appendChild(loginBtn);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.classList.add("delete-btn");
+        deleteBtn.textContent = "×";
+        deleteBtn.onclick = () => deleteStudent(index);
+        studentItem.appendChild(deleteBtn);
+
+        studentList.appendChild(studentItem);
+      });
+    }
+
+    function deleteStudent(index) {
+      students.splice(index, 1);
+      localStorage.setItem("students", JSON.stringify(students));
+      displayStudents();
+    }
+
+    window.onload = function () {
+      displayStudents();
+      initMap();
+    }
+  </script>
+
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-yD3xx8VZhACAof0ps9bWYa69sS_hGJU&callback=initMap">
+  </script>
+
+</body>
+</html>

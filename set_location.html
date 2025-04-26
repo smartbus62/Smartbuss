@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>تحديد الموقع</title>
+  <style>
+    body {
+      font-family: Arial;
+      direction: rtl;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    input, button {
+      margin: 10px;
+      padding: 15px;
+      font-size: 16px;
+      border-radius: 5px;
+      width: 200px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    #map {
+      width: 100%;
+      height: 300px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>تحديد الموقع</h2>
+
+  <div id="map"></div>
+
+  <!-- زر حفظ الموقع بعد تحديده -->
+  <button onclick="saveLocation()">حفظ الموقع</button> 
+
+  <script>
+    let map, marker;
+    let selectedLocation = { lat: 26.3260, lng: 43.9750 }; // موقع بريدة (يمكن تعديله)
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: selectedLocation,
+        zoom: 13
+      });
+
+      marker = new google.maps.Marker({
+        position: selectedLocation,
+        map: map,
+        draggable: true
+      });
+
+      // تحديث الموقع عند تحريك الدبوس
+      google.maps.event.addListener(marker, 'dragend', function () {
+        selectedLocation = {
+          lat: marker.getPosition().lat(),
+          lng: marker.getPosition().lng()
+        };
+      });
+    }
+
+    function saveLocation() {
+      // تخزين الموقع المحدد في localStorage
+      localStorage.setItem("studentLocation", JSON.stringify(selectedLocation));
+
+      alert("تم حفظ الموقع بنجاح!");
+
+      // عند حفظ الموقع، سيتم عرضه للمشرف والسائق
+      showLocationToDriverAndAdmin(selectedLocation);
+    }
+
+    function showLocationToDriverAndAdmin(location) {
+      // هنا سيكون لديك منطق لعرض الموقع في خريطة السائق والمشرف
+      console.log("موقع الطالب تم حفظه:", location);
+    }
+
+    // عند تحميل الصفحة، سيتم إنشاء الخريطة
+    window.onload = initMap;
+  </script>
+
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=‏AIzaSyB-yD3xx8VZhACAof0ps9bWYa69sS_hGJU&callback=initMap">
+  </script>
+
+</body>
+</html>

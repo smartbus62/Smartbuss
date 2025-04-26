@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>جدول الحضور للطالب</title>
+  <style>
+    body {
+      font-family: Arial;
+      direction: rtl;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    input, select, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      width: 200px;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .track-bus {
+      background-color: #17a2b8;
+    }
+
+    .back-button {
+      background-color: #007bff;
+    }
+
+    #map {
+      width: 100%;
+      height: 300px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>جدول الحضور للطالب</h2>
+
+  <label>الأحد:</label>
+  <select id="sun">
+    <option value="present">سيحضر كل اليوم</option>
+    <option value="onlyMorning">ذهاب فقط</option>
+    <option value="onlyAfternoon">عودة فقط</option>
+    <option value="absent">لن يحضر</option>
+  </select><br>
+
+  <label>الإثنين:</label>
+  <select id="mon">
+    <option value="present">سيحضر كل اليوم</option>
+    <option value="onlyMorning">ذهاب فقط</option>
+    <option value="onlyAfternoon">عودة فقط</option>
+    <option value="absent">لن يحضر</option>
+  </select><br>
+
+  <label>الثلاثاء:</label>
+  <select id="tue">
+    <option value="present">سيحضر كل اليوم</option>
+    <option value="onlyMorning">ذهاب فقط</option>
+    <option value="onlyAfternoon">عودة فقط</option>
+    <option value="absent">لن يحضر</option>
+  </select><br>
+
+  <label>الأربعاء:</label>
+  <select id="wed">
+    <option value="present">سيحضر كل اليوم</option>
+    <option value="onlyMorning">ذهاب فقط</option>
+    <option value="onlyAfternoon">عودة فقط</option>
+    <option value="absent">لن يحضر</option>
+  </select><br>
+
+  <label>الخميس:</label>
+  <select id="thu">
+    <option value="present">سيحضر كل اليوم</option>
+    <option value="onlyMorning">ذهاب فقط</option>
+    <option value="onlyAfternoon">عودة فقط</option>
+    <option value="absent">لن يحضر</option>
+  </select><br>
+
+  <button onclick="saveAttendance()">حفظ الجدول</button>
+  <button class="track-bus" onclick="trackBus()">تتبع الحافلة</button>
+  <button class="back-button" onclick="window.location.href='login.html'">عودة</button>
+
+  <div id="map"></div>
+
+  <script>
+    function saveAttendance() {
+      const attendance = {
+        sun: document.getElementById("sun").value,
+        mon: document.getElementById("mon").value,
+        tue: document.getElementById("tue").value,
+        wed: document.getElementById("wed").value,
+        thu: document.getElementById("thu").value,
+      };
+
+      const students = JSON.parse(localStorage.getItem("students")) || [];
+      const current = localStorage.getItem("currentStudent");
+      const index = students.findIndex(s => s.name === current);
+      if (index !== -1) {
+        students[index].attendance = attendance;
+        localStorage.setItem("students", JSON.stringify(students));
+        alert("تم حفظ الجدول وستظهر بيانات الطالب للسائق والمشرف.");
+        showStudentOnMap(students[index]);
+      }
+    }
+
+    function trackBus() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat, lng },
+            zoom: 15
+          });
+          new google.maps.Marker({
+            position: { lat, lng },
+            map,
+            icon: 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+          });
+        }, function() {
+          alert("تعذر تحديد موقع الحافلة.");
+        });
+      } else {
+        alert("المتصفح لا يدعم تتبع الموقع.");
+      }
+    }
+
+    function showStudentOnMap(student) {
+      const map = new google.maps.Map(document.getElementById("map"), {
+        center: student.location,
+        zoom: 14
+      });
+
+      const today = ["sun", "mon", "tue", "wed", "thu"][(new Date().getDay() + 6) % 7];
+      const status = student.attendance[today];
+      const color = getColor(status);
+
+      new google.maps.Marker({
+        position: student.location,
+        map,
+        icon: {
+          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          scale: 6,
+          fillColor: color,
+          fillOpacity: 1,
+          strokeWeight: 1,
+          strokeColor: '#fff'
+        },
+        title: student.name
+      });
+    }
+
+    function getColor(status) {
+      if (status === "present") return "#28a745"; // أخضر
+      if (status === "onlyMorning") return "#007bff"; // أزرق
+      if (status === "onlyAfternoon") return "#ffc107"; // أصفر
+      if (status === "absent") return "#dc3545"; // أحمر
+      return "#6c757d"; // رمادي
+    }
+  </script>
+
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-yD3xx8VZhACAof0ps9bWYa69sS_hGJU&callback=initMap">
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+html {
+  height: 100%;
+  width: 100%;
+}
+.logo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%; /* التأكد أن الشعار داخل الدائرة */
+  object-fit: cover; /* يضمن أن الصورة تغطي الدائرة بشكل مناسب */
+  object-position: center; /* لضبط مركز الصورة بشكل صحيح داخل الدائرة */
+}
